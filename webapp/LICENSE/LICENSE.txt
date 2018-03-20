@@ -1,6 +1,1 @@
-Note:
---------------------------------
-
-
 This is a python version blog.
-Author: Terence Tan
