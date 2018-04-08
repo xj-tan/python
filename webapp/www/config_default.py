@@ -11,8 +11,8 @@ configs = {
         'user':'root',
         'password':'password',
         'db':'awesome'
-        },
+     },
     'session':{
         'secret':'Awesome'
-        }
-    }
+     }
+}
