@@ -221,8 +221,8 @@ class Model(dict,metaclass=ModelMetaclass):
             logging.warn('failed to insert record: affected rows: %s' %rows)
 
     async def update(self):
-        args = list(map(self.getvalue,self.__fields__))
-        args.append(self.getValue(self.__primary_key__))
+        args = list(map(self.getValueOrDefault,self.__fields__))
+        args.append(self.getValueOrDefault(self.__primary_key__))
         rows = await execute(self.__update__,args)
         if rows!=1:
             logging.warn('failed to udpate by primary key: affected rows: %s' %rows)

@@ -142,7 +142,7 @@ async def api_update_blog(id,request,*,name,summary,content):
     blog = await Blog.find(id)
     if not name or not name.strip():
         raise APIValueError('name','name can not by empty')
-    if not summary or summary.strip():
+    if not summary or not summary.strip():
         raise APIValueError('summary','summary can not be empty')
     if not content or not content.strip():
         raise APIValueError('content','content can not be empty.')
@@ -198,13 +198,18 @@ def manage_users(*,page='1'):
         'page_index':get_page_index(page)
         }
 
-
 @get('/api/users')
-async def api_get_users():
-    users = await User.findAll(orderBy = 'created_at desc')
+async def api_get_users(*,page='1'):
+    page_index = get_page_index(page)
+    num = await User.findNumber('count(id)')
+    p = Page(num,page_index)
+    if num ==0:
+        return dict(page=p,users=())
+    users = await User.findAll(orderBy = 'created_at desc',limit=(p.offset,p.limit))
     for u in users:
         u.passwd='******'
-    return dict(users=users)
+    return dict(page=p,users=users)
+
 
 
 @get('/signin')
@@ -241,6 +246,15 @@ async def api_comments(*,page='1'):
         return dict(page=p,comments=())
     comments = await Comment.findAll(orderBy = 'created_at desc',limit=(p.offset,p.limit))
     return dict(page=p,comments=comments)
+
+@post('/api/comments/{id}/delete')
+async def api_delete_comments(id,request):
+    check_admin(request)
+    c = await Comment.find(id)
+    if c is None:
+        raise APIResourceNotFoundError('Comment')
+    await c.remove()
+    return dict(id=id)
 
 
 @post('/api/blogs/{id}/comments')
